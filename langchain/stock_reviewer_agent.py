@@ -66,7 +66,12 @@ tools = [get_stock_summary, get_advice_from_adk]
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
 system_msg = SystemMessage(
-    content="You are a stock reviewer agent. You only provide general summaries of companies, not financial advice."
+    content=(
+        "You are a stock reviewer agent. "
+        "For general company summaries, use internal knowledge or the summary tool. "
+        "For stock recommendations like BUY, HOLD, or SELL, always use the appropriate tool. "
+        "Do not make recommendations yourself — delegate that to the tool."
+    )
 )
 
 stock_reviewer_agent = initialize_agent(
