@@ -1,3 +1,4 @@
+from python_a2a import A2AServer, run_server, Message, TextContent, MessageRole
 from google.adk.agents import Agent
 import yfinance as yf
 
@@ -84,3 +85,21 @@ root_agent = Agent(
     ),
     tools=[get_financial_statements],
 )
+
+
+class ADKWrapperAgent(A2AServer):
+    def handle_message(self, message: Message) -> Message:
+        if message.content.type == "text":
+            ticker = message.content.text.replace("Analyze", "").strip()
+            reply = root_agent.run(f"Analyze {ticker}")
+            return Message(
+                content=TextContent(text=reply),
+                role=MessageRole.AGENT,
+                parent_message_id=message.message_id,
+                conversation_id=message.conversation_id,
+            )
+
+
+if __name__ == "__main__":
+    agent = ADKWrapperAgent()
+    run_server(agent, host="0.0.0.0", port=5001)
