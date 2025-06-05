@@ -1,1 +1,1 @@
-from . import agent
+from . import stock_advisor_agent
