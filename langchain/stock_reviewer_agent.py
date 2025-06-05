@@ -13,21 +13,21 @@ load_dotenv()
 a2a_adk_client = A2AClient("http://localhost:5001/a2a")
 
 
+@tool
 def get_advice_from_adk(ticker: str) -> str:
-    msg = Message(content=TextContent(text=f"Analyze {ticker}"), role=MessageRole.USER)
-    response = a2a_adk_client.send_message(msg)
-    return (
-        response.content.text
-        if hasattr(response.content, "text")
-        else str(response.content)
-    )
-
-
-advice_tool = Tool.from_function(
-    func=get_advice_from_adk,
-    name="get_advice_from_adk",
-    description="Gets a BUY/HOLD/SELL recommendation from the stock advisor agent.",
-)
+    """Gets a BUY/HOLD/SELL recommendation from the stock advisor agent."""
+    try:
+        msg = Message(
+            content=TextContent(text=f"Analyze {ticker}"), role=MessageRole.USER
+        )
+        response = a2a_adk_client.send_message(msg)
+        return (
+            response.content.text
+            if hasattr(response.content, "text")
+            else str(response.content)
+        )
+    except Exception as e:
+        return f"Could not get advice for {ticker}: {e}"
 
 
 @tool
@@ -61,7 +61,7 @@ def get_stock_summary(ticker: str) -> str:
         return f"Could not retrieve stock data for {ticker}: {e}"
 
 
-tools = [get_stock_summary, advice_tool]
+tools = [get_stock_summary, get_advice_from_adk]
 
 llm = ChatOpenAI(temperature=0, model="gpt-3.5-turbo")
 
